@@ -182,7 +182,7 @@ function enqueueProcessEvent(
 
 function defaultShellResolver(): string {
   if (process.platform === "win32") {
-    return process.env.ComSpec ?? "cmd.exe";
+    return "pwsh.exe";
   }
   return process.env.SHELL ?? "bash";
 }
@@ -234,8 +234,9 @@ function resolveShellCandidates(shellResolver: () => string): ShellCandidate[] {
   if (process.platform === "win32") {
     return uniqueShellCandidates([
       requested,
-      shellCandidateFromCommand(process.env.ComSpec ?? null),
+      shellCandidateFromCommand("pwsh.exe"),
       shellCandidateFromCommand("powershell.exe"),
+      shellCandidateFromCommand(process.env.ComSpec ?? null),
       shellCandidateFromCommand("cmd.exe"),
     ]);
   }
