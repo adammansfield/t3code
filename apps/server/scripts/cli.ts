@@ -140,14 +140,16 @@ const buildCmd = Command.make(
   },
   (config) =>
     Effect.gen(function* () {
+      const buildExecPath =
+        process.platform === "win32" ? `"${process.execPath}"` : process.execPath;
       const path = yield* Path.Path;
       const fs = yield* FileSystem.FileSystem;
       const repoRoot = yield* RepoRoot;
       const serverDir = path.join(repoRoot, "apps/server");
 
-      yield* Effect.log("[cli] Running tsdown...");
+      yield* Effect.log(`[cli] Running tsdown via ${process.execPath}...`);
       yield* runCommand(
-        ChildProcess.make(process.execPath, ["--run", "build:bundle"], {
+        ChildProcess.make(buildExecPath, ["--run", "build:bundle"], {
           cwd: serverDir,
           stdout: config.verbose ? "inherit" : "ignore",
           stderr: "inherit",
