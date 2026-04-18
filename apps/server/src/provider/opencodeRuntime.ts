@@ -304,6 +304,17 @@ export function resolveOpenCodeBinaryPath(binaryPath: string): string {
   if (Path.isAbsolute(binaryPath)) {
     return binaryPath;
   }
+  if (process.platform === "win32") {
+    return (
+      execFileSync("where.exe", [binaryPath], {
+        encoding: "utf8",
+        timeout: 3_000,
+      })
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .find((s) => s.length > 0) ?? ""
+    );
+  }
   return execFileSync("which", [binaryPath], {
     encoding: "utf8",
     timeout: 3_000,
@@ -361,6 +372,8 @@ export async function startOpenCodeServerProcess(input: {
   const args = ["serve", `--hostname=${hostname}`, `--port=${port}`];
   const child = spawn(input.binaryPath, args, {
     stdio: ["ignore", "pipe", "pipe"],
+    // Windows needs shell mode to resolve opencode.cmd shim
+    shell: process.platform === "win32",
     env: {
       ...process.env,
       OPENCODE_CONFIG_CONTENT: JSON.stringify({}),
